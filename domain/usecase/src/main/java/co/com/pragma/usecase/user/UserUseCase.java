@@ -30,7 +30,7 @@ public class UserUseCase implements IUserUseCase {
                 .addValidation(new SalarioBaseValidation());
 
         return validation.validate(user)
-                .then(userRepository.save(user));
+                .then(userRepository.save(user)).log();
     }
     @Override
     public Flux<User> getAllUsers() {
