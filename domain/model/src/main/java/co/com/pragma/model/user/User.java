@@ -24,5 +24,4 @@ public class User {
     private BigDecimal salarioBase;
     private String documentoIdentidad;
     private Long rolId;
-
 }

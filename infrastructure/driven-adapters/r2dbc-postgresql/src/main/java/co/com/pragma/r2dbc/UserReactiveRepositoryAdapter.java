@@ -24,7 +24,7 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     private static final Logger log = LoggerFactory.getLogger(UserReactiveRepositoryAdapter.class);
 
-
+    //para manejo de las transacciones dentro del flujo reactivo
     private final TransactionalOperator transactionalOperator;
 
     public UserReactiveRepositoryAdapter(UserReactiveRepository repository, ObjectMapper mapper, TransactionalOperator transactionalOperator) {
@@ -46,14 +46,14 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
         user.setEmail(email);
         return findByExample(user)
                 .next()
-                .doOnNext(u -> log.info("ADAPTER: Se valida si ya existe el email en BD: {}", u))
+                .doOnNext(u -> log.info("ADAPTER: Se valida si existe email registrado en la BD: {}", u))
                 .switchIfEmpty(Mono.empty());
     }
 
     @Override
     public Flux<User> getAllUsers() {
         return super.findAll()
-                .doOnNext(String -> log.info("ADAPTER: Ingrese a listar Usuarios "));
+                .doOnNext(String -> log.info("ADAPTER: Ingrese a listar Usuarios"));
     }
 
     @Override
