@@ -1,5 +1,6 @@
 package co.com.pragma.r2dbc;
 
+import co.com.pragma.model.user.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,14 +28,14 @@ class UserReactiveRepositoryAdapterTest {
     @Mock
     ObjectMapper mapper;
 
-    /*
+
     @Test
     void mustFindValueById() {
 
         when(repository.findById("1")).thenReturn(Mono.just("test"));
         when(mapper.map("test", Object.class)).thenReturn("test");
 
-        Mono<Object> result = repositoryAdapter.findById("1");
+        Mono<User> result = repositoryAdapter.findById("1");
 
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
@@ -46,7 +47,7 @@ class UserReactiveRepositoryAdapterTest {
         when(repository.findAll()).thenReturn(Flux.just("test"));
         when(mapper.map("test", Object.class)).thenReturn("test");
 
-        Flux<Object> result = repositoryAdapter.findAll();
+        Flux<User> result = repositoryAdapter.findAll();
 
         StepVerifier.create(result)
                 .expectNextMatches(value -> value.equals("test"))
@@ -77,5 +78,5 @@ class UserReactiveRepositoryAdapterTest {
                 .verifyComplete();
     }
 
-     */
+
 }

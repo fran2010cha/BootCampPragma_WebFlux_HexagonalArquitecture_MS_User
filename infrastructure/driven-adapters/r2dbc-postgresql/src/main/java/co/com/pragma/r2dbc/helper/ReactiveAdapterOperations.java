@@ -63,7 +63,6 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
 
     public Flux<E> findAll() {
         return repository.findAll()
-                .delayElements(Duration.ofMillis(1000))
                 .map(this::toEntity);
     }
 }
