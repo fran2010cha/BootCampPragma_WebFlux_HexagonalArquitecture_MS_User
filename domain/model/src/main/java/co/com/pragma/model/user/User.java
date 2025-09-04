@@ -1,4 +1,5 @@
 package co.com.pragma.model.user;
+import co.com.pragma.model.rol.Rol;
 import lombok.Builder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +8,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -23,5 +25,8 @@ public class User {
     private String email;
     private BigDecimal salarioBase;
     private String documentoIdentidad;
-    private Long rolId;
+    private Rol rol;
+    private String passwordHash;
+    private int intentosFallidos;
+    private LocalDateTime bloqueadoHasta;
 }

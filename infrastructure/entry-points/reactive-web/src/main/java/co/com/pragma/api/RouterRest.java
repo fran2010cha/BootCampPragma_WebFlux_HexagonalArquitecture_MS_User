@@ -59,6 +59,8 @@ public class RouterRest {
     })
     public RouterFunction<ServerResponse> routerFunction(Handler handler) {
         return route(GET(userPath.getUsers()), userHandler::listenGetAllUsers)
-                .andRoute(POST(userPath.getUsers()), userHandler::listenSavedUser);
+                .andRoute(POST(userPath.getUsers()), userHandler::listenSavedUser)
+                .andRoute(POST("/api/v1/ILogin"), userHandler::login)
+                .andRoute(POST("/api/v1/users/validate"), userHandler::validateUser);
     }
 }

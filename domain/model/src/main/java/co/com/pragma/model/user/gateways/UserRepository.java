@@ -11,4 +11,5 @@ public interface UserRepository {
     Flux<User> getAllUsers();
     Mono<User> findById(String id);
     Mono<Void> deleteById(String id);
+    Mono<User> getUsuarioByEmailAndDocument(String email, String document);
 }

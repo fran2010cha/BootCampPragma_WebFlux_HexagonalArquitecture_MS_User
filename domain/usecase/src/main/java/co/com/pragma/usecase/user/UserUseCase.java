@@ -1,6 +1,7 @@
 package co.com.pragma.usecase.user;
 
 import co.com.pragma.model.user.User;
+import co.com.pragma.model.user.gateways.PasswordEncoder;
 import co.com.pragma.model.user.gateways.UserRepository;
 import co.com.pragma.usecase.user.validationhandling.UserValidation;
 import co.com.pragma.usecase.user.validationhandling.validations.ApellidoValidation;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigInteger;
 import java.util.regex.Pattern;
 import java.util.Objects;
 
@@ -18,6 +20,7 @@ import java.util.Objects;
 public class UserUseCase implements IUserUseCase {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -28,6 +31,11 @@ public class UserUseCase implements IUserUseCase {
                 .addValidation(new ApellidoValidation())
                 .addValidation(new EmailValidation(userRepository))
                 .addValidation(new SalarioBaseValidation());
+
+        BigInteger rolIdFijo = BigInteger.ONE;
+
+        //TODO check password convert
+        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
 
         return validation.validate(user)
                 .then(userRepository.save(user)).log();

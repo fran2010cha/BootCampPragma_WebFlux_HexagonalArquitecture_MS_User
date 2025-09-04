@@ -65,4 +65,23 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
     public Mono<Void> deleteById(String id) {
         return null;
     }
+
+    @Override
+    public Mono<User> getUsuarioByEmailAndDocument(String email, String document) {
+        log.info("Buscando usuario por email={} y documento={}", email, document);
+
+        User usuario = new User();
+        usuario.setEmail(email);
+        usuario.setDocumentoIdentidad(document);
+
+        return findByExample(usuario)
+                .doOnNext(u -> log.debug("Coincidencia encontrada: {}", u))
+                .next()
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("No se encontró usuario con email={} y documento={}", email, document);
+                    return Mono.empty();
+                }))
+                .doOnError(e -> log.error("Error al buscar usuario por email={} y documento={}: {}", email, document, e.getMessage(), e));
+
+    }
 }
