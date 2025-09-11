@@ -8,6 +8,7 @@ import co.com.pragma.api.mapper.registry.UserDTOMapper;
 import co.com.pragma.model.user.User;
 import co.com.pragma.usecase.login.ILogin;
 import co.com.pragma.usecase.user.IUserUseCase;
+import co.com.pragma.usecase.validationclient.IValidateJwt;
 import co.com.pragma.usecase.validationclient.IValidationClientUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class Handler {
     private final IUserUseCase userUseCase;
     private final UserDTOMapper userDTOMapper;
     private final IValidationClientUseCase validationClientUseCase;
+    private final IValidateJwt validateJwt;
     private final ILogin loginUseCase;
 
     public Mono<ServerResponse> listenGetAllUsers(ServerRequest serverRequest) {
@@ -37,11 +39,27 @@ public class Handler {
     }
 
     public Mono<ServerResponse> listenSavedUser(ServerRequest serverRequest) {
-        return serverRequest.bodyToMono(UserRequestDTO.class)
-                .flatMap(dto ->
-                        userUseCase.saveUser(userDTOMapper.mapToEntity(dto))
-                                .then(ServerResponse.ok().bodyValue("Usuario guardado correctamente"))
-                )
+        return validateJwt.validate(
+                serverRequest.headers().firstHeader("Authorization"))
+                .flatMap(rol -> {
+                    if (rol == null || rol.isEmpty()) {
+                        return ServerResponse.status(HttpStatus.UNAUTHORIZED)
+                                .bodyValue("Token inválido o sin rol");
+                    }
+
+                    // opcional: validas que sea ADMIN(1)
+                    if (!"1".equalsIgnoreCase(rol)) {
+                        return ServerResponse.status(HttpStatus.FORBIDDEN)
+                                .bodyValue("No tienes permisos para guardar usuarios");
+                    }
+                    return serverRequest.bodyToMono(UserRequestDTO.class)
+                            .flatMap(dto ->
+                                    userUseCase.saveUser(userDTOMapper.mapToEntity(dto))
+                                            .then(ServerResponse.ok().bodyValue("Usuario guardado correctamente"))
+                            );
+                })
+                .switchIfEmpty(ServerResponse.status(HttpStatus.UNAUTHORIZED)
+                        .bodyValue("Token inválido o sin rol"))
                 .onErrorResume( error -> ServerResponse.status(HttpStatus.BAD_REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(error.getMessage()))

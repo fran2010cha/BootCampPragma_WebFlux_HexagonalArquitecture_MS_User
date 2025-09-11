@@ -16,19 +16,22 @@ public class JwtTokenProvider {
     private static final Key KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
     private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    public static Mono<Boolean> validateTokenReactive(String token) {
+    public static Mono<String> validateTokenReactive(String token) {
         return Mono.fromCallable(() -> {
             try {
-                Jwts.parser() // ✅ en 0.13.0
+                Claims claims = Jwts.parser() // ✅ en 0.13.0
                         .setSigningKey(KEY)
                         .build()
-                        .parseClaimsJws(token);
-                return true;
+                        .parseClaimsJws(token)
+                        .getBody();
+                return   claims.get("ROL", Integer.class); // 👈 recuperas el rol
+               //  true;
             } catch (JwtException | IllegalArgumentException e) {
                 log.error("❌ Token inválido: {}", e.getMessage());
-                return false;
+                //return false;
+                return null;
             }
-        });
+        }).flatMap(rol -> rol != null ? Mono.just(rol.toString()) : Mono.empty());
     }
 
 }

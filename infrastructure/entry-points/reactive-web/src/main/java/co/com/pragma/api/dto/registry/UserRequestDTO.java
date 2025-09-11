@@ -56,7 +56,7 @@ public record UserRequestDTO(
                 minLength = 6,
                 maxLength = 50
         )
-        String rolId,
+        Long rolId,
 
         @Schema(
                 description = "Fecha de nacimiento",
@@ -78,6 +78,11 @@ public record UserRequestDTO(
                 example = "2500000",
                 minimum = "0"
         )
-        Long salarioBase
+        Long salarioBase,
+
+        @Schema(
+                description = "Contraseña en texto plano",
+                example = "miPassword123")
+        String passwordHash
 ) {
 }

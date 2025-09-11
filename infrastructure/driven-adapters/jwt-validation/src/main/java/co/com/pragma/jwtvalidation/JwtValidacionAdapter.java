@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
@@ -35,11 +36,12 @@ public class JwtValidacionAdapter   implements IValidateJwt ,IJwtTokenProvider, 
     }
 
     @Override
-    public Mono<String> createToken(String email) {
+    public Mono<String> createToken(String email,BigInteger idRol) {
 
         return Mono.fromSupplier(() ->
                 Jwts.builder()
                         .setSubject(email)
+                        .claim("ROL", idRol)
                         .setIssuer("hu3-service")
                         .setIssuedAt(new Date())
                         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
@@ -62,18 +64,15 @@ public class JwtValidacionAdapter   implements IValidateJwt ,IJwtTokenProvider, 
     }
 
     @Override
-    public Mono<Boolean> validate(String jwt) {
+    public Mono<String> validate(String jwt) {
         return Mono.justOrEmpty(jwt)
                 .filter(token -> token.startsWith("Bearer "))
                 .map(token -> token.substring(7))
                 .doOnNext(t -> log.debug("Token extraído: {}", t))
-                .map(JwtTokenProvider::validateTokenReactive)
-                .doOnNext(valid -> {
-                    log.error("JWT inválido para el token extraído");
-                })
-                .defaultIfEmpty(Mono.just(false))
+                .flatMap(JwtTokenProvider::validateTokenReactive)
+                .doOnNext(rol -> log.debug("Rol obtenido del token: {}", rol))
                 .doOnError(e -> log.error("Error al validar el JWT: {}", e.getMessage()))
-                .flatMap(mono -> mono);
+                .onErrorResume(e -> Mono.empty());
     }
 
 }

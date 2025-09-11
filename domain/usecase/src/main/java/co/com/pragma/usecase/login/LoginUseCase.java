@@ -17,10 +17,10 @@ public class LoginUseCase implements ILogin {
         return usuarioRepository.findByEmail(email)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Usuario no encontrado")))
                 .flatMap(user -> {
-                   // if (passwordEncoder.matches(password, user.getPasswordHash())) {
-                        return Mono.just(jwtTokenProvider.createToken(user.getEmail()));
-                    //}
-                    //return Mono.error(new IllegalArgumentException("Credenciales inválidas"));
+                    if (passwordEncoder.matches(password, user.getPasswordHash())) {
+                        return Mono.just(jwtTokenProvider.createToken(user.getEmail(),user.getRol().getUniqueId()));
+                    }
+                    return Mono.error(new IllegalArgumentException("Credenciales inválidas"));
                 }).flatMap(token -> token);
     }
 }

@@ -13,17 +13,23 @@ public class ValidationClientUseCase  implements IValidationClientUseCase{
     @Override
     public Mono<Boolean> isUserValid(String jwt, String document, String email) {
         return validateJwt.validate(jwt)
-                .flatMap(isValid -> {
-                    if (Boolean.TRUE.equals(isValid)) {
+                .flatMap(rol -> {
+                    if (rol == null || rol.isEmpty()) {
+                        // token inválido → error
+                        return Mono.error(new IllegalArgumentException("JWT no es válido o no tiene rol"));
+                    }
+
+                    // opcional: si solo quieres permitir ADMIN:
+                    if (!"ADMIN".equalsIgnoreCase(rol)) {
+                        return Mono.error(new IllegalAccessException("Usuario no tiene rol ADMIN"));
+                    }
                         return usuarioRepository.getUsuarioByEmailAndDocument(email, document)
                                 .flatMap(usuario ->
                                         {
                                             return Mono.just(usuario.getDocumentoIdentidad().equalsIgnoreCase(document));
                                         }
                                 ).defaultIfEmpty(false);
-                    } else {
-                        return Mono.error(new IllegalArgumentException("JWT no es válido"));
-                    }
+
                 });
     }
 }

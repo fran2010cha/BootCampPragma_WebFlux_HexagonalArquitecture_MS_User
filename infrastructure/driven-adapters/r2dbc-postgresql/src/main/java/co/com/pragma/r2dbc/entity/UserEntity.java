@@ -31,5 +31,7 @@ public class UserEntity {
     @Column("documento_identidad")
     private String documentoIdentidad;
     @Column("rol_id")
-    private Long rolId;
+    private BigInteger rolId;
+    @Column("password_hash")
+    private String passwordHash;
 }

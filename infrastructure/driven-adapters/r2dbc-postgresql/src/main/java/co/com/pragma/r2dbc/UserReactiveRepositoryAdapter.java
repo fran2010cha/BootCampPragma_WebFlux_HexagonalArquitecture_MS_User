@@ -1,5 +1,6 @@
 package co.com.pragma.r2dbc;
 
+import co.com.pragma.model.rol.Rol;
 import co.com.pragma.model.user.User;
 import co.com.pragma.model.user.gateways.UserRepository;
 import co.com.pragma.r2dbc.entity.UserEntity;
@@ -35,19 +36,34 @@ public class UserReactiveRepositoryAdapter extends ReactiveAdapterOperations<
 
     @Override
     public Mono<User> save(User user) {
-        return super.save(user)
-                .doOnNext(u -> log.info("ADAPTER: Usuario guardado en la BD: {}", u))
-                .as(transactionalOperator::transactional);
+        UserEntity entity = mapper.map(user, UserEntity.class);
+        // manualmente mapear rolId
+        if (user.getRol() != null) {
+            entity.setRolId(user.getRol().getUniqueId());
+        }
+        return super.saveData(entity)
+                .map(savedEntity -> mapper.map(savedEntity, User.class));
     }
 
     @Override
     public Mono<User> findByEmail(String email) {
-        User user = new User();
+        UserEntity user = new UserEntity();
         user.setEmail(email);
-        return findByExample(user)
+
+        return findByExampleEntity(user)
                 .next()
-                .doOnNext(u -> log.info("ADAPTER: Se valida si existe email registrado en la BD: {}", u))
-                .switchIfEmpty(Mono.empty());
+                .map(entity -> {
+                    User mapped = mapper.map(entity, User.class);
+                    if (entity.getRolId() != null) {
+                        mapped.setRol(Rol.builder().uniqueId(entity.getRolId()).build());
+                    }
+                    return mapped;
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.warn("No se encontró usuario con email={}", email);
+                    return Mono.empty();
+                }))
+                .doOnError(e -> log.error("Error al buscar usuario por email={}: {}", email, e.getMessage(), e));
     }
 
     @Override

@@ -61,6 +61,11 @@ public abstract class ReactiveAdapterOperations<E, D, I, R extends ReactiveCrudR
                 .map(this::toEntity);
     }
 
+    public Flux<D> findByExampleEntity(D entity) {
+        return repository.findAll(Example.of(entity));
+    }
+
+
     public Flux<E> findAll() {
         return repository.findAll()
                 .map(this::toEntity);
