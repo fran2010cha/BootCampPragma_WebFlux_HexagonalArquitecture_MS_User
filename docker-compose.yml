@@ -1,0 +1,34 @@
+services:
+  postgres-hu1:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: crediya
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+    volumes:
+      - pg_data_hu1:/var/lib/postgresql/data
+    networks:
+      - crediya_network
+
+  app-service-hu1:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    depends_on:
+      - postgres-hu1
+    environment:
+      POSTGRES_HOST: postgres-hu1
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: crediya
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      JWT_SECRET: "bootcamp_java_super_secure_secret_key_123456"
+    networks:
+      - crediya_network
+
+volumes:
+  pg_data_hu1:
+
+networks:
+  crediya_network:
+    external: true

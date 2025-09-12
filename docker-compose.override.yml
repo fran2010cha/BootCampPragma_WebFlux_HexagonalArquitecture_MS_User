@@ -1,0 +1,18 @@
+services:
+  postgres-hu1:
+    ports:
+      - "5433:5432"
+
+  app-service-hu1:
+    ports:
+      - "8081:8080"
+    environment:
+      POSTGRES_HOST: postgres-hu1
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: crediya
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      JWT_PRIVATE_KEY_PATH: /app/secrets/jwt-private.pem
+      JWT_PUBLIC_KEY_PATH: /app/secrets/jwt-public.pem
+    volumes:
+      - ./secrets:/app/secrets:ro

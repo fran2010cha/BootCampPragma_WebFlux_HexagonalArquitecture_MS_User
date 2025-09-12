@@ -1,6 +1,7 @@
 package co.com.pragma.model.user;
 
 
+import co.com.pragma.model.rol.Rol;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class UserTest {
         String documentoIdentidad = "4452466";
         Long rolId = 1L;
 
+        Rol rol = new Rol(BigInteger.ONE, "ADMIN", "Administrador del sistema");
 
         User usuario = new User(
                 id,
@@ -34,7 +36,10 @@ public class UserTest {
                 email,
                 salarioBase,
                 documentoIdentidad,
-                rolId
+                rol,
+                "str12345",
+                0,
+                null
         );
 
         assertNotNull(usuario);
@@ -47,8 +52,7 @@ public class UserTest {
         assertEquals(email, usuario.getEmail());
         assertEquals(salarioBase, usuario.getSalarioBase());
         assertEquals(documentoIdentidad, usuario.getDocumentoIdentidad());
-        assertEquals(rolId, usuario.getRolId());
+        assertEquals("ADMIN", usuario.getRol().getNombre());
 
     }
-
 }

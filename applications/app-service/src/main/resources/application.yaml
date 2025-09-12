@@ -30,9 +30,9 @@ routes:
 
 adapters:
   r2dbc:
-    host: "localhost"
-    port: 5432
-    database: "crediya"
+    host: "${POSTGRES_HOST:postgres-hu1}"
+    port: "${POSTGRES_PORT:5432}"
+    database: "${POSTGRES_DB:crediya}"
     schema: "public"
-    username: "postgres"
-    password: "admin123"
+    username: "${POSTGRES_USER:postgres}"
+    password: "${POSTGRES_PASSWORD:admin123}"
